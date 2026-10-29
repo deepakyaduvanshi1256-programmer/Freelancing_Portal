@@ -3,6 +3,8 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap/dist/js/bootstrap.bundle.js'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css'
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Home from './components/Home'
 import Register from './components/Register'
 import Pricing from './components/Pricing'
@@ -67,6 +69,14 @@ const App = () => {
 
 
         </Routes>
+          <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        theme="colored"
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+      />
         <Footer />
       </BrowserRouter>
     </>
