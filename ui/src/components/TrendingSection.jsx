@@ -57,7 +57,7 @@ const TrendingSection = () => {
                 <p className='text-danger m-0 trendingprice'>Rs.1,12,545/-</p>
                 <div>
                   <span className='float-start'>9 bids</span>
-                  <span className='float-end'> 455 views</span>
+                  <span className='float-end'> 45255 views</span>
                 </div>
                 <button className='w-50 py-2 rounded mt-1  herobtn' onClick={fetchBids }>Place Bid</button>
               </div>
