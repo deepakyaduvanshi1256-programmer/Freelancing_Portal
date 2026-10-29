@@ -45,19 +45,19 @@ const TrendingSection = () => {
               <div className='card shadow-lg mx-auto border border-0 trendingcard position-relative p-2'>
                 <img src="/images/course-04-590x430.jpg" alt="" className='img-fluid' />
                 <span className='badge bg-color-1 position-absolute'>Fixed Priced</span>
-                <h6 className='m-0 pt-2'>E-Commerce Website</h6>
+                <h6 className='m-0 pt-2'>Student ERP</h6>
                 <p className='m-0 trendingstar'>
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
-                  (5.0/499 ratings)
+                  (4.5/499 ratings)
                 </p>
-                <p className='text-danger m-0 trendingprice'>Rs.1,11,111/-</p>
+                <p className='text-danger m-0 trendingprice'>Rs.1,12,545/-</p>
                 <div>
-                  <span className='float-start'>8 bids</span>
-                  <span className='float-end'> 45 views</span>
+                  <span className='float-start'>9 bids</span>
+                  <span className='float-end'> 455 views</span>
                 </div>
                 <button className='w-50 py-2 rounded mt-1  herobtn' onClick={fetchBids }>Place Bid</button>
               </div>
@@ -67,19 +67,19 @@ const TrendingSection = () => {
               <div className='card shadow-lg mx-auto border border-0 trendingcard position-relative p-2'>
                 <img src="/images/course-04-590x430.jpg" alt="" className='img-fluid' />
                 <span className='badge bg-color-1 position-absolute'>Fixed Priced</span>
-                <h6 className='m-0 pt-2'>E-Commerce Website</h6>
+                <h6 className='m-0 pt-2'>Heatlth Power</h6>
                 <p className='m-0 trendingstar'>
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
-                  (5.0/499 ratings)
+                  (4.3/429 ratings)
                 </p>
                 <p className='text-danger m-0 trendingprice'>Rs.1,11,111/-</p>
                 <div>
-                  <span className='float-start'>8 bids</span>
-                  <span className='float-end'> 45 views</span>
+                  <span className='float-start'>25 bids</span>
+                  <span className='float-end'> 1020 views</span>
                 </div>
                 <button className=' w-50  py-2 rounded mt-1  herobtn' onClick={fetchBids }>Place Bid</button>
               </div>
@@ -89,19 +89,19 @@ const TrendingSection = () => {
               <div className='card shadow-lg mx-auto border border-0 trendingcard position-relative p-2'>
                 <img src="/images/course-04-590x430.jpg" alt="" className='img-fluid' />
                 <span className='badge bg-color-1 position-absolute'>Fixed Priced</span>
-                <h6 className='m-0 pt-2'>E-Commerce Website</h6>
+                <h6 className='m-0 pt-2'>Agriculture & Farmer</h6>
                 <p className='m-0 trendingstar'>
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
-                  (5.0/499 ratings)
+                  (4.5/459 ratings)
                 </p>
                 <p className='text-danger m-0 trendingprice'>Rs.1,11,111/-</p>
                 <div>
-                  <span className='float-start'>8 bids</span>
-                  <span className='float-end'> 45 views</span>
+                  <span className='float-start'>151 bids</span>
+                  <span className='float-end'> 1254 views</span>
                 </div>
                 <button className='w-50  py-2 rounded mt-1  herobtn' onClick={fetchBids }>Place Bid</button>
               </div>
