@@ -43,7 +43,7 @@ const TrendingSection = () => {
 
             <div className="col-sm-3">
               <div className='card shadow-lg mx-auto border border-0 trendingcard position-relative p-2'>
-                <img src="/images/course-04-590x430.jpg" alt="" className='img-fluid' />
+                <img src="/images/erp.jpg" alt="" className='img-fluid' />
                 <span className='badge bg-color-1 position-absolute'>Fixed Priced</span>
                 <h6 className='m-0 pt-2'>Student ERP</h6>
                 <p className='m-0 trendingstar'>
@@ -65,9 +65,9 @@ const TrendingSection = () => {
 
             <div className="col-sm-3">
               <div className='card shadow-lg mx-auto border border-0 trendingcard position-relative p-2'>
-                <img src="/images/course-04-590x430.jpg" alt="" className='img-fluid' />
+                <img src="/images/Health.jpg" alt="" className='img-fluid' />
                 <span className='badge bg-color-1 position-absolute'>Fixed Priced</span>
-                <h6 className='m-0 pt-2'>Heatlth Power</h6>
+                <h6 className='m-0 pt-2'>Heatlth Care</h6>
                 <p className='m-0 trendingstar'>
                   <FaStar className='text-warning' />
                   <FaStar className='text-warning' />
@@ -76,7 +76,7 @@ const TrendingSection = () => {
                   <FaStar className='text-warning' />
                   (4.3/429 ratings)
                 </p>
-                <p className='text-danger m-0 trendingprice'>Rs.1,11,111/-</p>
+                <p className='text-danger m-0 trendingprice'>Rs.2,11,235/-</p>
                 <div>
                   <span className='float-start'>25 bids</span>
                   <span className='float-end'> 1020 views</span>
@@ -87,7 +87,7 @@ const TrendingSection = () => {
 
             <div className="col-sm-3">
               <div className='card shadow-lg mx-auto border border-0 trendingcard position-relative p-2'>
-                <img src="/images/course-04-590x430.jpg" alt="" className='img-fluid' />
+                <img src="/images/farmer.jpg" alt="" className='img-fluid' />
                 <span className='badge bg-color-1 position-absolute'>Fixed Priced</span>
                 <h6 className='m-0 pt-2'>Agriculture & Farmer</h6>
                 <p className='m-0 trendingstar'>
@@ -98,7 +98,7 @@ const TrendingSection = () => {
                   <FaStar className='text-warning' />
                   (4.5/459 ratings)
                 </p>
-                <p className='text-danger m-0 trendingprice'>Rs.1,11,111/-</p>
+                <p className='text-danger m-0 trendingprice'>Rs.1,55,251/-</p>
                 <div>
                   <span className='float-start'>151 bids</span>
                   <span className='float-end'> 1254 views</span>
