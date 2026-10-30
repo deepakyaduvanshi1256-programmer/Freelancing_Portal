@@ -15,6 +15,8 @@ const userSchema = new mongoose.Schema({
   skill: { type: String },
   credit: { type: Number, default: 0 }, // token wallet balance
   isBlocked: { type: Boolean, default: false },
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
   status: { type: String, default: "active" },
   createdAt: { type: Date, default: Date.now }
 });
@@ -30,11 +32,17 @@ const ProjectSchema = new mongoose.Schema({
   duration: { type: String },
   status: {
     type: String,
-    enum: ["open", "assigned", "in_progress", "completed", "cancelled", "blocked"],
+    enum: ["open", "assigned", "in_progress", "awaiting_review", "completed", "cancelled", "blocked"],
     default: "open"
   },
   assignedTo: { type: String, default: null }, // developer userId once a bid is accepted
   assignedBidId: { type: String, default: null },
+  deliveryLink: { type: String, default: null },
+  deliveryFileUrl: { type: String, default: null },
+  deliveryFileName: { type: String, default: null },
+  previousStatus: { type: String, default: null },
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -61,6 +69,9 @@ export const BidModel = mongoose.model("Bids", BidSchema);
 // ---------------- Notification Model ----------------
 const NotificationSchema = new mongoose.Schema({
   userId: { type: String, required: true },
+  senderId: { type: String, default: null },
+  senderName: { type: String, default: "Zentora" },
+  recipientName: { type: String, default: null },
   message: { type: String, required: true },
   type: {
     type: String,
@@ -73,6 +84,21 @@ const NotificationSchema = new mongoose.Schema({
 });
 
 export const NotificationModel = mongoose.model("Notifications", NotificationSchema);
+
+// ---------------- Project conversation ----------------
+const ProjectMessageSchema = new mongoose.Schema({
+  projectId: { type: String, required: true },
+  senderId: { type: String, required: true },
+  recipientId: { type: String, required: true },
+  message: { type: String, required: true },
+  deliveryLink: { type: String, default: null },
+  deliveryFileUrl: { type: String, default: null },
+  deliveryFileName: { type: String, default: null },
+  readBy: [{ type: String }],
+  readAt: { type: Date, default: null },
+  createdAt: { type: Date, default: Date.now }
+});
+export const ProjectMessageModel = mongoose.model("ProjectMessages", ProjectMessageSchema);
 
 // ---------------- Plan Model (token packages) ----------------
 const PlanSchema = new mongoose.Schema({

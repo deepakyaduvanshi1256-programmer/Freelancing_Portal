@@ -1,36 +1,30 @@
-import React from 'react'
-import { FaCheck } from "react-icons/fa";
-const TrustedSection = () => {
-  return (
-    <>
+import { FaCheckCircle } from 'react-icons/fa';
 
-      <div className="row py-3 trusted">
-        <div className='col-sm-10 mx-auto'>
-          <div className='webheading'>Trusted By <b className='text-color1'>Teams</b></div>
-          <hr className='w-25 mx-auto text-color1' />
-          <div className="row">
-            <div className="col-sm-6 position-relative pt-5">
-              <img src="/images/about-01.webp" alt="" className='img-fluid rounded-3' />
-              <div className='shadow-lg p-1 position-absolute w-50 trustedimg'>
-                <img src="/images/Image-2.png" alt="" className='img-fluid rounded-3' /></div>
+const benefits = ['Expert freelancers', 'Safe escrow payments', '24/7 priority support'];
+
+const TrustedSection = () => (
+  <section className="bg-light py-5" data-aos="fade-up" data-aos-duration="800">
+    <div className="container py-md-3">
+      <div className="text-center mb-4">
+        <h2 className="fs-3 fs-md-2 fw-bold">Trusted by <span className="text-primary">Teams</span></h2>
+        <div className="mx-auto border-top border-primary border-3 mt-3" style={{ width: '70px' }} />
+      </div>
+      <div className="row align-items-center g-4">
+        <div className="col-12 col-lg-6">
+          <img src="/images/about-01.webp" alt="Teams working together with Zentora" className="img-fluid rounded-4 shadow-sm w-100" />
+        </div>
+        <div className="col-12 col-lg-6">
+          <div className="card border-0 shadow-sm rounded-4 h-100">
+            <div className="card-body p-4 p-md-5">
+              <h3 className="h4 fw-bold mb-3">A secure platform built for great work</h3>
+              <p className="text-secondary">Zentora brings clients and talented professionals together in one transparent marketplace, making it easier to collaborate, communicate, and deliver outstanding results.</p>
+              {benefits.map((benefit) => <p key={benefit} className="mb-2"><FaCheckCircle className="text-primary me-2" />{benefit}</p>)}
             </div>
-            <div className="col-sm-6 trustediv">
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto doloribus expedita molestiae 
-              quidem nesciunt quia, harum odio sunt magni. Similique enim vero beatae nostrum est voluptatibus voluptate
-               praesentium mollitia aliquam. Et culpa possimus error mollitia pariatur voluptatibus ipsam, cupiditate veniam
-                hic! Dolorum consequatur, fugit recusandae laudantium corporis molestiae nesciunt maiores!</p>
-                <p>
-                  < FaCheck className='text-color1'/>  Export Freelancer <br></br>
-                  < FaCheck className='text-color1'/>  Safe Escrow Payments <br></br>
-                  < FaCheck className='text-color1'/>  24/7 Priority Support <br></br>
-                </p>
-          </div>
           </div>
         </div>
       </div>
+    </div>
+  </section>
+);
 
-    </>
-  )
-}
-
-export default TrustedSection
+export default TrustedSection;

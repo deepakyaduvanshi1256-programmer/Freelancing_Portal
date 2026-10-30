@@ -1,77 +1,100 @@
-import React from 'react'
-import { IoCheckmarkOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { RxCross1 } from "react-icons/rx";
+import { IoCheckmarkOutline } from "react-icons/io5";
+import { isLoggedIn } from "../utils/auth";
+
+const plans = [
+  {
+    name: "Starter",
+    price: "₹0",
+    credits: 10,
+    description: "For new freelancers getting started",
+    button: "Start Free",
+  },
+  {
+    name: "Professional",
+    price: "₹499",
+    credits: 50,
+    description: "Best for active freelancers",
+    button: "Get Pro Plan",
+  },
+  {
+    name: "Advance",
+    price: "₹1499",
+    credits: 150,
+    description: "For power users and small agencies",
+    button: "Get Advance Plan",
+  },
+];
+
 const Pricing = () => {
-   const navigate = useNavigate();
-
-  const fetchCredit = () => {
-    navigate("/user-plans");
-  };
+  const navigate = useNavigate();
   return (
-    <>
-    <div className="row px-5 testimonial">
-        <div className='col-sm-10 mx-auto'>
-          <div className='webheading mt-5'>FREELANCER  <b className='text-color1'>PLANS</b></div>
-          <h1 className='text-center talentt'> Buy Credits. Place Bids. Win Projects.</h1>
-          <h6 className='talentt text-center'>Every bid costs 1 credit. Choose a plan, get monthly credits, and start bidding on projects. Clients post jobs for free — plans are for freelancers only.</h6>
-          <hr className='w-25 mx-auto text-color1' />
-          <div className="row g-3 ">
-            <div className="col-sm-4 ">
-              <div className='card border-0 shadow-lg px-3 princingborder'>
-                <div className='fw-bold mt-3'>STARTER</div>
-                <div className='fw-bold fs-3'>₹0 <span className='month'>/ month</span></div>
-                 <p className='month'>For new freelancers getting started</p>
-                 <div className=''>
-                  <p className='fontsize '> <IoCheckmarkOutline className='text-danger fs-3'/> 10 bidding credits / month</p>
-                  <p className='fontsize '> <IoCheckmarkOutline className='text-danger fs-3' /> Browse all open projects</p>
-                  <p className='fontsize'> <IoCheckmarkOutline className='text-danger fs-3' /> Basic profile & portfolio</p>
-                  <p className='fontsize'> <RxCross1 className=' fs-5' /> Priority bid visibility</p>
-                  <p className='fontsize'> <RxCross1 className=' fs-5 mt-2' /> Bid analytics dashboard</p>
-                 </div>
-                 <button className='bg bg-info w-100 text-light btn mt-4 mb-2' onClick={fetchCredit}>Go Plan</button>
-                 <p className='month mx-5 mb-4'>10 credits included · 1 credit per bid</p>
+    <section
+      className="container py-5 neu-pricing-section"
+      data-aos="fade-up"
+      data-aos-duration="800"
+    >
+      <div className="text-center mb-4">
+        <h2 className="fs-3 fs-md-2 fw-bold">
+          Freelancer <span className="text-primary">Plans</span>
+        </h2>
+        <h3 className="h5">Buy credits. Place bids. Win projects.</h3>
+        <p className="text-secondary mx-auto" style={{ maxWidth: "760px" }}>
+          Choose monthly credits and start bidding. Clients post projects for
+          free; plans are for freelancers.
+        </p>
+      </div>
+      <div className="row g-4 align-items-stretch">
+        {plans.map((plan, index) => (
+          <div
+            key={plan.name}
+            className="col-12 col-sm-6 col-lg-4"
+            data-aos="fade-up"
+            data-aos-delay={index * 100}
+          >
+            <div
+              className={`neu-pricing-card card h-100 border-0 ${index === 1 ? "neu-pricing-featured" : ""}`}
+            >
+              <div className="card-body p-4 d-flex flex-column">
+                <span className="fw-bold text-primary">{plan.name}</span>
+                <div className="h2 fw-bold mt-2">
+                  {plan.price}
+                  <small className="fs-6 text-secondary fw-normal">
+                    {" "}
+                    / month
+                  </small>
+                </div>
+                <p className="text-secondary">{plan.description}</p>
+                {[
+                  "Browse all open projects",
+                  "Basic profile and portfolio",
+                  "Priority bid visibility",
+                  "Bid analytics dashboard",
+                ]
+                  .slice(0, index + 2)
+                  .map((feature) => (
+                    <p key={feature} className="mb-2">
+                      <IoCheckmarkOutline className="text-primary me-2" />
+                      {feature}
+                    </p>
+                  ))}
+                <button
+                  type="button"
+                  className="neu-pricing-button btn btn-lg rounded-pill mt-auto"
+                  onClick={() => navigate(isLoggedIn() ? "/user-plans" : "/login", { state: { plan: plan.name } })}
+                >
+                  {plan.button}
+                </button>
+                <small className="text-center text-secondary mt-3">
+                  {plan.credits} credits · 1 credit per bid
+                </small>
               </div>
             </div>
-            <div className="col-sm-4 ">
-              <div className='card border-0 shadow-lg px-3 princingborder'>
-                <div className='fw-bold mt-3'>STARTER</div>
-                <div className='fw-bold fs-3'>₹499 <span className='month'>/ month</span></div>
-                 <p className='month'>Best for active freelancers</p>
-                 <div className=''>
-                  <p className='fontsize '> <IoCheckmarkOutline className='text-danger fs-3'/> 50 bidding credits / month</p>
-                  <p className='fontsize '> <IoCheckmarkOutline className='text-danger fs-3' /> Browse all open projects</p>
-                  <p className='fontsize'> <IoCheckmarkOutline className='text-danger fs-3' /> Basic profile & portfolio</p>
-                  <p className='fontsize'> <IoCheckmarkOutline className='text-danger fs-3' /> Priority bid visibility</p>
-                  <p className='fontsize'> <RxCross1 className=' fs-5' /> Bid analytics dashboard</p>
-                 </div>
-                 <button className='bg bg-info w-100 text-light btnn mt-4 mb-3' onClick={fetchCredit}>Get Pro Plan</button>
-                 <p className='month mx-5'>50 credits included · 1 credit per bid</p>
-              </div>
-            </div>
-            <div className="col-sm-4">
-              <div className='card border-0 shadow-lg px-3 princingborder'>
-                <div className='fw-bold mt-3'>STARTER</div>
-                <div className='fw-bold fs-3'>₹1499 <span className='month'>/ month</span></div>
-                 <p className='month'>For power users & small agencies</p>
-                 <div className=''>
-                  <p className='fontsize '> <IoCheckmarkOutline className='text-danger fs-3'/> 150 bidding credits / month</p>
-                  <p className='fontsize '> <IoCheckmarkOutline className='text-danger fs-3' /> Browse all open projects</p>
-                  <p className='fontsize'> <IoCheckmarkOutline className='text-danger fs-3' /> Basic profile & portfolio</p>
-                  <p className='fontsize'> <IoCheckmarkOutline className='text-danger fs-3' /> Priority bid visibility</p>
-                  <p className='fontsize'> <IoCheckmarkOutline className=' text-danger fs-3' /> Bid analytics dashboard</p>
-                 </div>
-                 <button className='bg bg-info w-100 text-light btnn mt-3 mb-3' onClick={fetchCredit}>Get Advance Plan</button>
-                 <p className='month mx-5'>150 credits included · 1 credit per bid</p>
-              </div>
-            </div>
-            
           </div>
-          </div>
-          </div>
-    
-    </>
-  )
-}
+        ))}
+      </div>
+    </section>
+  );
+};
 
-export default Pricing
+export default Pricing;

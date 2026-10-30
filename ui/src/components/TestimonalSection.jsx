@@ -1,65 +1,70 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
 import { FaStar } from "react-icons/fa";
 
-const TestimonalSection = () => {
-  return (
-     <>
-    
-    <div className="row py-3 testimonial">
-      <div className='col-sm-10 mx-auto'>
-         <div className='webheading'>Our <b className='text-color1'>Testimonials</b></div>
-          <hr className='w-25 mx-auto text-color1' />
-          <div className="row">
-            <div className="col-sm-6">
-              <span>TESTIMONIALS</span>
-              <h3 className='teathead'>What our Zentora <br></br> Community Says</h3>
-               <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quas veniam consectetur
-                 Modi officiis animi doloribus voluptate odio dolores ullam similique aut eveniet, unde 
-                 suscipit dolorem rerum, tenetur quis assumenda nulla.</p> 
-                 <Link className='bg-color-1 text-light px-4 py-2'>View All</Link>
-            </div>
-            <div className="col-sm-3">
-              <div className='shadow-lg p-3'>
-                <img src="/images/testimonial-04.jpg" alt="" className='img-fluid rounded-circle'/>
-                <p className='textp'>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eum, esse, enim voluptatem vitae sed ipsum 
-                  odio a eaque dicta voluptatum!</p>
-                  <p className='textstar'>
-                  <FaStar className='text-warning'/>
-                  <FaStar className='text-warning'/>
-                  <FaStar className='text-warning'/>
-                  <FaStar className='text-warning'/>
-                  <FaStar className='text-warning'/>
-                  </p>
-                  <p className='m-0'>Er. Mr. Deepak Yadav</p>
-                  <p className='m-0 textpost'>Software Engineer</p>
+const testimonials = [
+  {
+    name: "Er. Deepak Yadav",
+    role: "Software Engineer",
+    image: "/images/testimonial-04.jpg",
+    text: "Zentora made finding reliable freelance opportunities simple and helped me communicate with clients without unnecessary delays.",
+  },
+  {
+    name: "Er. Sadhana Yadav",
+    role: "Software Engineer",
+    image: "/images/testimonial-03.png",
+    text: "A clean and professional platform that makes hiring skilled talent faster, more transparent, and easier to manage.",
+  },
+];
 
-              </div>
-            </div>
-            <div className="col-sm-3">
-              <div className='shadow-lg p-3'>
-                <img src="/images/testimonial-03.png" alt="" className='img-fluid rounded-circle'/>
-                <p className='textp'>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eum, esse, enim voluptatem vitae sed ipsum 
-                  odio a eaque dicta voluptatum!</p>
-                  <p className='textstar'>
-                  <FaStar className='text-warning'/>
-                  <FaStar className='text-warning'/>
-                  <FaStar className='text-warning'/>
-                  <FaStar className='text-warning'/>
-                  <FaStar className='text-warning'/>
-                  </p>
-                   <p className='m-0'>Er.Ms. Sadhana Yadav</p>
-                   <p className='m-0 textpost'>Software Engineer</p>
-
+const TestimonalSection = () => (
+  <section className="bg-light py-5" data-aos="fade-up" data-aos-duration="800">
+    <div className="container">
+      <div className="text-center mb-4">
+        <h2 className="fs-3 fs-md-2 fw-bold">
+          Our <span className="text-primary">Testimonials</span>
+        </h2>
+      </div>
+      <div className="row align-items-center g-4">
+        <div className="col-12 col-lg-5">
+          <span className="badge bg-primary-subtle text-primary mb-2">
+            COMMUNITY STORIES
+          </span>
+          <h3 className="fw-bold mb-3">What our Zentora community says</h3>
+          <p className="text-secondary">
+            See why freelancers and businesses choose Zentora for secure
+            collaboration, clear communication, and lasting professional
+            partnerships.
+          </p>
+        </div>
+        {testimonials.map((item, index) => (
+          <div
+            key={item.name}
+            className="col-12 col-md-6 col-lg-3"
+            data-aos="fade-up"
+            data-aos-delay={(index + 1) * 100}
+          >
+            <div className="card shadow-sm h-100 border-0 rounded-4 transition p-2">
+              <div className="card-body text-center">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="img-fluid rounded-circle mb-3"
+                  style={{ width: "90px", height: "90px", objectFit: "cover" }}
+                />
+                <div className="text-warning mb-2">
+                  {Array.from({ length: 5 }).map((_, star) => (
+                    <FaStar key={star} />
+                  ))}
+                </div>
+                <p className="small text-secondary">{item.text}</p>
+                <h3 className="h6 mb-1">{item.name}</h3>
+                <p className="small text-primary mb-0">{item.role}</p>
               </div>
             </div>
           </div>
-
+        ))}
       </div>
     </div>
-    
-    </>
-  )
-}
+  </section>
+);
 
-export default TestimonalSection
+export default TestimonalSection;

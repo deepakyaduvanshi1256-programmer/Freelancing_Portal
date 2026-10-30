@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
-import { BidModel, ProjectModel, userModel, NotificationModel } from "../models/model.js";
+import { BidModel, ProjectModel, userModel, NotificationModel, ProjectMessageModel } from "../models/model.js";
+import { sendProjectEmail, sendBulkProjectEmails } from "../utils/emailService.js";
+import { emitProjectMessage } from "../socketServer.js";
 
 const BID_COST = 10; // tokens spent whenever a developer places a bid
 
@@ -36,24 +38,152 @@ export const placeBid = async (req, res) => {
         const bid = new BidModel({ projectId, developerId, amount, duration, proposal, tokensUsed: BID_COST });
         const result = await bid.save();
 
-        await NotificationModel.create({
-            userId: project.clientId,
-            message: `New bid received on your project "${project.title}"`,
-            type: "bid_received",
-            relatedProjectId: project._id.toString()
-        });
-
         res.json({ code: 200, success: true, message: "Bid placed successfully", result, error: false });
+
+        // Keep SMTP and secondary notification work completely outside the bid response.
+        setImmediate(async () => {
+            try {
+                const client = await userModel.findById(project.clientId);
+                await NotificationModel.create({
+                    userId: project.clientId,
+                    senderId: developerId,
+                    senderName: developer.name || "Developer",
+                    recipientName: client?.name || "Client",
+                    message: `New bid received on your project "${project.title}"`,
+                    type: "bid_received",
+                    relatedProjectId: project._id.toString()
+                });
+                sendProjectEmail({
+                    to: client?.email,
+                    subject: `New bid: ${project.title}`,
+                    text: `${developer.name || "A freelancer"} submitted a bid of ₹${amount} for your project "${project.title}".`
+                }).catch(() => {});
+                sendProjectEmail({ to: developer.email, subject: `Bid submitted: ${project.title}`, text: `Your bid of ₹${amount} for "${project.title}" was submitted successfully.` }).catch(() => {});
+                userModel.find({ type: "admin", isDeleted: { $ne: true } }).select("email").then((admins) => {
+                    sendBulkProjectEmails(admins.map((admin) => admin.email), { subject: `Bid activity: ${project.title}`, text: `${developer.name || developer.email} placed a bid of ₹${amount} on "${project.title}".` });
+                }).catch(() => {});
+            } catch (backgroundError) {
+                console.error("Bid notification background task failed:", backgroundError.message);
+            }
+        });
     } catch (err) {
         console.log(err);
         res.json({ code: 500, success: false, message: "Internal Server Error", result: "", error: true });
     }
 };
 
+// Developer can update a pending bid while the project is still open
+export const updateMyBid = async (req, res) => {
+    try {
+        const developerId = req.user.id;
+        const { bidId, amount, duration, proposal } = req.body;
+        if (!bidId || !amount?.toString().trim() || !duration?.trim() || !proposal?.trim()) {
+            return res.json({ code: 400, success: false, message: "Amount, duration and proposal are required", result: "", error: true });
+        }
+        const bid = await BidModel.findOne({ _id: bidId, developerId, status: "pending" });
+        if (!bid) return res.json({ code: 404, success: false, message: "Only pending bids can be edited", result: "", error: true });
+        const project = await ProjectModel.findOne({ _id: bid.projectId, status: "open", isDeleted: { $ne: true } });
+        if (!project) return res.json({ code: 400, success: false, message: "This project is no longer open for bidding", result: "", error: true });
+
+        bid.amount = amount.toString().trim();
+        bid.duration = duration.trim();
+        bid.proposal = proposal.trim();
+        await bid.save();
+        const client = await userModel.findById(project.clientId);
+        await NotificationModel.create({ userId: project.clientId, message: `A freelancer updated their bid on "${project.title}".`, type: "bid_received", relatedProjectId: project._id.toString() });
+        sendProjectEmail({ to: client?.email, subject: `Bid updated: ${project.title}`, text: `A freelancer updated their bid on "${project.title}". New amount: ₹${amount}.` }).catch(() => {});
+        res.json({ code: 200, success: true, message: "Bid updated successfully", result: bid, error: false });
+    } catch (err) {
+        console.log(err);
+        res.json({ code: 500, success: false, message: "Internal Server Error", result: "", error: true });
+    }
+};
+
+export const confirmProjectStart = async (req, res) => {
+    try {
+        const developerId = req.user.id;
+        const { projectId, message } = req.body;
+        const project = await ProjectModel.findOne({ _id: projectId, assignedTo: developerId, status: "assigned" });
+        if (!project) return res.json({ code: 400, success: false, message: "Project is not ready to start", result: "", error: true });
+        project.status = "in_progress";
+        await project.save();
+        const client = await userModel.findById(project.clientId);
+        await NotificationModel.create({ userId: client?._id?.toString(), message: `Freelancer confirmed work has started on "${project.title}"${message?.trim() ? `: ${message.trim()}` : "."}`, type: "project_assigned", relatedProjectId: project._id.toString() });
+        sendProjectEmail({ to: client?.email, subject: `Work started: ${project.title}`, text: `Your assigned freelancer has started the project. ${message?.trim() || ""}` }).catch(() => {});
+        res.json({ code: 200, success: true, message: "Work started successfully", result: project, error: false });
+    } catch (err) { res.json({ code: 500, success: false, message: "Internal Server Error", result: "", error: true }); }
+};
+
+export const sendProjectConversationMessage = async (req, res) => {
+    try {
+        const senderId = req.user.id;
+        const { projectId, message, deliveryLink } = req.body;
+        if (!message?.trim()) return res.json({ code: 400, success: false, message: "Message is required", result: "", error: true });
+        const project = await ProjectModel.findOne({ _id: projectId, $or: [{ clientId: senderId }, { assignedTo: senderId }] });
+        if (!project) return res.json({ code: 403, success: false, message: "You are not part of this project", result: "", error: true });
+        const recipientId = project.clientId.toString() === senderId ? project.assignedTo : project.clientId;
+        if (!recipientId) return res.json({ code: 400, success: false, message: "No assigned freelancer yet", result: "", error: true });
+        const saved = await ProjectMessageModel.create({ projectId, senderId, recipientId, message: message.trim(), deliveryLink: deliveryLink?.trim() || null });
+        await NotificationModel.create({ userId: recipientId, message: `New project message on "${project.title}": ${message.trim()}`, type: "general", relatedProjectId: projectId });
+        const recipient = await userModel.findById(recipientId);
+        sendProjectEmail({ to: recipient?.email, subject: `Message about ${project.title}`, text: `${message.trim()}${deliveryLink?.trim() ? `\nDelivery/file link: ${deliveryLink.trim()}` : ""}` }).catch(() => {});
+        emitProjectMessage(projectId, saved);
+        res.json({ code: 200, success: true, message: "Message sent", result: saved, error: false });
+    } catch (err) { res.json({ code: 500, success: false, message: "Internal Server Error", result: "", error: true }); }
+};
+
+export const getProjectConversation = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { projectId } = req.params;
+        const project = await ProjectModel.findOne({ _id: projectId, $or: [{ clientId: userId }, { assignedTo: userId }] });
+        if (!project) return res.json({ code: 403, success: false, message: "Access denied", result: [], error: true });
+        await ProjectMessageModel.updateMany(
+            { projectId, recipientId: userId, readBy: { $ne: userId } },
+            { $addToSet: { readBy: userId }, $set: { readAt: new Date() } }
+        );
+        const messages = await ProjectMessageModel.find({ projectId }).sort({ createdAt: 1 });
+        res.json({ code: 200, success: true, message: "Conversation fetched", result: messages, error: false });
+    } catch (err) { res.json({ code: 500, success: false, message: "Internal Server Error", result: [], error: true }); }
+};
+
+export const submitProjectForReview = async (req, res) => {
+    try {
+        const developerId = req.user.id;
+        const { projectId, message, deliveryLink } = req.body;
+        if (!message?.trim()) return res.json({ code: 400, success: false, message: "Add a completion message for the client", result: "", error: true });
+        const uploadedFile = req.file;
+        const deliveryFileUrl = uploadedFile ? `${req.protocol}://${req.get("host")}/uploads/deliveries/${encodeURIComponent(uploadedFile.filename)}` : null;
+        const deliveryData = {
+            status: "awaiting_review",
+            deliveryLink: deliveryLink?.trim() || null,
+            deliveryFileUrl,
+            deliveryFileName: uploadedFile?.originalname || null
+        };
+        const project = await ProjectModel.findOneAndUpdate(
+            { _id: projectId, assignedTo: developerId, status: { $in: ["assigned", "in_progress"] } },
+            deliveryData,
+            { new: true }
+        );
+        if (!project) return res.json({ code: 400, success: false, message: "Only assigned work can be submitted for review", result: "", error: true });
+        await NotificationModel.create({ userId: project.clientId, message: `Freelancer submitted "${project.title}" for your review: ${message.trim()}`, type: "project_completed", relatedProjectId: project._id.toString() });
+        await ProjectMessageModel.create({ projectId, senderId: developerId, recipientId: project.clientId, message: message.trim(), deliveryLink: deliveryLink?.trim() || null, deliveryFileUrl, deliveryFileName: uploadedFile?.originalname || null });
+        const client = await userModel.findById(project.clientId);
+        sendProjectEmail({ to: client?.email, subject: `Delivery ready: ${project.title}`, text: `${message.trim()}${deliveryLink?.trim() ? `\nDelivery link: ${deliveryLink.trim()}` : ""}${deliveryFileUrl ? `\nUploaded file: ${deliveryFileUrl}` : ""}` }).catch(() => {});
+        const developer = await userModel.findById(developerId);
+        userModel.find({ type: "admin", isDeleted: { $ne: true } }).select("email").then((admins) => {
+            sendBulkProjectEmails(admins.map((admin) => admin.email), { subject: `Project delivered: ${project.title}`, text: `${developer?.name || developer?.email || "Developer"} submitted delivery for review on "${project.title}".` });
+        }).catch(() => {});
+        res.json({ code: 200, success: true, message: "Project sent to client for review", result: project, error: false });
+    } catch (err) { res.json({ code: 500, success: false, message: "Internal Server Error", result: "", error: true }); }
+};
+
 // Client views all bids on one of their projects
 export const getBidsForProject = async (req, res) => {
     try {
         const { projectId } = req.query;
+        const project = await ProjectModel.findOne({ _id: projectId, clientId: req.user.id, isDeleted: { $ne: true } });
+        if (!project) return res.status(403).json({ code: 403, success: false, message: "You can only view bids on your own projects", result: [], error: true });
         const bids = await BidModel.find({ projectId }).sort({ createdAt: -1 });
         // attach basic developer info to each bid
         const developerIds = bids.map(b => b.developerId);
@@ -70,8 +200,11 @@ export const getBidsForProject = async (req, res) => {
 // Developer views their own bid history
 export const getMyBids = async (req, res) => {
     try {
+        res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        res.set("Pragma", "no-cache");
+        res.set("Expires", "0");
         const developerId = req.user.id;
-        const bids = await BidModel.find({ developerId }).sort({ createdAt: -1 });
+        const bids = await BidModel.find({ developerId }).sort({ createdAt: -1, _id: -1 });
         const projectIds = bids.map(b => b.projectId);
         const projects = await ProjectModel.find({ _id: { $in: projectIds } });
         const projMap = {};
@@ -115,12 +248,22 @@ export const acceptBid = async (req, res) => {
             { status: "rejected" }
         );
 
+        const acceptedDeveloper = await userModel.findById(bid.developerId);
+        const assigningClient = await userModel.findById(req.user.id);
         await NotificationModel.create({
             userId: bid.developerId,
+            senderId: req.user.id,
+            senderName: assigningClient?.name || "Client",
+            recipientName: acceptedDeveloper?.name || "Developer",
             message: `Your bid was accepted! Project "${project.title}" has been assigned to you.`,
             type: "project_assigned",
             relatedProjectId: project._id.toString()
         });
+        sendProjectEmail({ to: acceptedDeveloper?.email, subject: `Bid accepted: ${project.title}`, text: `${assigningClient?.name || "The client"} accepted your bid and assigned you "${project.title}".` }).catch(() => {});
+        sendProjectEmail({ to: assigningClient?.email, subject: `Project assigned: ${project.title}`, text: `You assigned "${project.title}" to ${acceptedDeveloper?.name || "the selected developer"}.` }).catch(() => {});
+        userModel.find({ type: "admin", isDeleted: { $ne: true } }).select("email").then((admins) => {
+            sendBulkProjectEmails(admins.map((admin) => admin.email), { subject: `Project assigned: ${project.title}`, text: `${assigningClient?.name || "Client"} assigned "${project.title}" to ${acceptedDeveloper?.name || acceptedDeveloper?.email || "a developer"}.` });
+        }).catch(() => {});
 
         for (const ob of otherBids) {
             await NotificationModel.create({
@@ -129,6 +272,8 @@ export const acceptBid = async (req, res) => {
                 type: "bid_rejected",
                 relatedProjectId: project._id.toString()
             });
+            const rejectedDeveloper = await userModel.findById(ob.developerId);
+            sendProjectEmail({ to: rejectedDeveloper?.email, subject: `Bid update: ${project.title}`, text: `Your bid on "${project.title}" was not selected this time.` }).catch(() => {});
         }
 
         res.json({ code: 200, success: true, message: "Bid accepted, project assigned", result: { bid, project }, error: false });
@@ -153,6 +298,8 @@ export const rejectBid = async (req, res) => {
             type: "bid_rejected",
             relatedProjectId: bid.projectId
         });
+        const rejectedDeveloper = await userModel.findById(bid.developerId);
+        sendProjectEmail({ to: rejectedDeveloper?.email, subject: `Bid rejected: ${project?.title || "Project"}`, text: `Your bid on "${project?.title || "the project"}" was rejected by the client.` }).catch(() => {});
         res.json({ code: 200, success: true, message: "Bid rejected", result: bid, error: false });
     } catch (err) {
         res.json({ code: 500, success: false, message: "Internal Server Error", result: "", error: true });

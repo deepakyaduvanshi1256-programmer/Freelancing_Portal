@@ -20,47 +20,24 @@ const AdminBids = () => {
   };
 
   return (
-    <div className="admin-container container-fluid py-4">
+    <main className="admin-shell container-fluid px-3 px-md-4 py-4 py-md-5"><div className="container">
       <div className="heading-section">
         <span className="dash-eyebrow">Zentora Admin</span>
         <h2 className="dash-heading">All Bids</h2>
       </div>
 
-      <div className="dash-card">
-        <div className="table-responsive">
-          <table className="dash-table">
-            <thead>
-              <tr>
-                <th>Project</th>
-                <th>Freelancer</th>
-                <th>Amount</th>
-                <th>Duration</th>
-                <th>Tokens Used</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.length > 0 ? (
-                data.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item?.project?.title || "-"}</td>
-                    <td>{item?.developer?.name || "-"}</td>
-                    <td>{item?.amount}</td>
-                    <td>{item?.duration}</td>
-                    <td>{item?.tokensUsed}</td>
-                    <td><StatusBadge status={item?.status} /></td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="no-data">No Bids Found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+      <div className="admin-list-toolbar"><div><span className="admin-list-count">{data.length}</span><span>Total proposals</span></div><span className="admin-live-dot">Live bids</span></div>
+      <div className="admin-record-grid">
+        {data.length > 0 ? data.map((item) => (
+          <article className="admin-record-card admin-bid-card" key={item._id}>
+            <div className="admin-record-top"><div className="admin-record-icon">₹</div><StatusBadge status={item?.status} /></div>
+            <div className="admin-record-body"><span className="admin-card-kicker">{item?.developer?.name || "Freelancer"}</span><h3>{item?.project?.title || "Project proposal"}</h3></div>
+            <div className="admin-record-meta"><div><small>Bid amount</small><strong>₹{item?.amount || 0}</strong></div><div><small>Duration</small><strong>{item?.duration || "—"}</strong></div></div>
+            <div className="admin-token-pill"><span>Tokens used</span><strong>{item?.tokensUsed || 0}</strong></div>
+          </article>
+        )) : <div className="admin-empty-state"><span>₹</span><h4>No bids found</h4><p>New project proposals will appear here.</p></div>}
       </div>
-    </div>
+    </div></main>
   );
 };
 

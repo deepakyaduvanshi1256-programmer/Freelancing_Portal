@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap/dist/js/bootstrap.bundle.js'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import './App.css'
+import './sweetalert-neumorphism.css'
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from './components/Home'
@@ -31,10 +32,25 @@ import UserProfile from './components/user/UserProfile'
 import UserPlans from './components/user/UserPlans'
 import RequireAuth from './components/common/RequireAuth'
 
+const RouteEffects = () => {
+  const location = useLocation()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' })
+    if (window.AOS) {
+      window.AOS.init({ once: true, offset: 80 })
+      window.requestAnimationFrame(() => window.AOS.refreshHard())
+    }
+  }, [location.pathname])
+
+  return null
+}
+
 const App = () => {
   return (
     <>
       <BrowserRouter>
+        <RouteEffects />
         <Navbar />
         <Routes>
           {/* common url */}

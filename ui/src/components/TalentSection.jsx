@@ -1,49 +1,24 @@
-import React from 'react'
-import { FaShareAlt } from "react-icons/fa";
-const TalentSection = () => {
-  return (
-    <>
-      <div className="row px-5 testimonial">
-        <div className='col-sm-10 mx-auto'>
-          <div className='webheading'>Top <b className='text-color1'>Talent</b></div>
-          <h4 className='text-center talentt'> Featured Freelancers on Zentora</h4>
-          <hr className='w-25 mx-auto text-color1' />
-          <div className="row ">
+const talent = [
+  ['Sadhana Yadav', 'UI/UX Designer', '/images/team-01.webp'], ['Er. Deepak Yadav', 'Web Developer', '/images/team-02.webp'],
+  ['Veena Singh', 'Software Developer', '/images/team-03.webp'], ['Er. Abhishek Nishad', 'Web Developer', '/images/team-04.webp'],
+];
 
-            <div className="col-sm-3 position-relative ">
-              <img src="/images/team-01.webp" alt="" className='toptl ' />
-              <p ><FaShareAlt className='position-absolute shareb' /> </p>
-              <h5 className='m-0 px-5'>Sadhana Yadav</h5>
-              <p className='m-0 px-5  toptext'>UI/UX Designer</p>
-            </div>
-
-            <div className="col-sm-3 position-relative">
-              <img src="/images/team-02.webp" alt="" className='toptl ' />
-              <p ><FaShareAlt className='position-absolute shareb' /> </p>
-              <h5 className='m-0 px-5'>Er. Deepak yadav</h5>
-              <p className='m-0 px-5  toptext'>Web Developer</p>
-            </div>
-
-            <div className="col-sm-3 position-relative">
-              <img src="/images/team-03.webp" alt="" className='toptl' />
-              <p ><FaShareAlt className='position-absolute shareb' /> </p>
-              <h5 className='m-0 px-5'>Veena Singh</h5>
-              <p className='m-0 px-5  toptext'>Software Developer</p>
-            </div>
-
-            <div className="col-sm-3 position-relative">
-              <img src="/images/team-04.webp" alt="" className='toptl' />
-              <p ><FaShareAlt className='position-absolute shareb' /> </p>
-              <h5 className='m-0 px-5'>Er. Abhishek Nishad</h5>
-              <p className='m-0 px-5  toptext'>Web Developer</p>
-            </div>
-
-
+const TalentSection = () => (
+  <section className="container py-5" data-aos="fade-up" data-aos-duration="800">
+    <div className="text-center mb-4">
+      <h2 className="fs-3 fs-md-2 fw-bold">Top <span className="text-primary">Talent</span></h2>
+      <p className="text-secondary">Featured freelancers on Zentora</p>
+    </div>
+    <div className="row g-4 justify-content-center">
+      {talent.map(([name, role, image], index) => (
+        <div key={name} className="col-12 col-sm-6 col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay={index * 100}>
+          <div className="card shadow-sm h-100 border-0 rounded-4 transition text-center">
+            <div className="card-body p-4"><img src={image} alt={name} className="img-fluid rounded-3 w-100 mb-3" /><h3 className="h5 mb-1">{name}</h3><p className="text-primary mb-0">{role}</p></div>
           </div>
         </div>
-      </div>
-    </>
-  )
-}
+      ))}
+    </div>
+  </section>
+);
 
-export default TalentSection
+export default TalentSection;

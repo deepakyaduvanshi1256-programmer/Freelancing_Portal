@@ -9,11 +9,13 @@ const schema = yup.object({
   name: yup.string().required("Plan name is required"),
   tokens: yup.number().typeError("Tokens must be a number").positive().integer().required("Tokens are required"),
   price: yup.string().required("Price is required"),
-  description: yup.string(),
+  description: yup.string().nullable(),
+  status: yup.string().oneOf(["active", "inactive"]),
 });
 
 const AdminPlans = () => {
   const [plans, setPlans] = useState([]);
+  const [editingPlan, setEditingPlan] = useState(null);
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
@@ -32,12 +34,15 @@ const AdminPlans = () => {
     }
   };
 
-  const handleCreate = async (data) => {
+  const handleSave = async (data) => {
     try {
-      const res = await axiosInstance.post("/admin-create-plan", data);
+      const payload = editingPlan ? { ...data, planId: editingPlan._id } : data;
+      const endpoint = editingPlan ? "/admin-update-plan" : "/admin-create-plan";
+      const res = await axiosInstance.post(endpoint, payload);
       if (res?.data?.success) {
         Swal.fire({ title: "Plan", text: res?.data?.message, icon: "success" });
         reset();
+        setEditingPlan(null);
         fetchPlans();
       } else {
         Swal.fire({ title: "Plan", text: res?.data?.message, icon: "error" });
@@ -47,8 +52,19 @@ const AdminPlans = () => {
     }
   };
 
+  const startEdit = (plan) => {
+    setEditingPlan(plan);
+    reset({ name: plan.name, tokens: plan.tokens, price: plan.price, description: plan.description || "", status: plan.status || "active" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const cancelEdit = () => {
+    setEditingPlan(null);
+    reset();
+  };
+
   return (
-    <div className="container py-5">
+    <main className="admin-shell container-fluid px-3 px-md-4 py-4 py-md-5"><div className="container">
       <div className="row">
         <div className="col-12">
           <span className="dash-eyebrow">Zentora Admin</span>
@@ -59,8 +75,8 @@ const AdminPlans = () => {
       <div className="row">
         <div className="col-12">
           <div className="dash-card mb-4">
-            <h4>Create New Plan</h4>
-            <form onSubmit={handleSubmit(handleCreate)}>
+            <h4>{editingPlan ? "Edit Credit Plan" : "Create New Plan"}</h4>
+            <form onSubmit={handleSubmit(handleSave)}>
               <div className="row g-3">
                 <div className="col-12 col-sm-3">
                   <label className="form-label">Plan Name</label>
@@ -77,53 +93,38 @@ const AdminPlans = () => {
                   <input type="text" className="form-control" placeholder="e.g. 499" {...register("price")} />
                   <div className="text-danger small">{errors.price?.message}</div>
                 </div>
-                <div className="col-12 col-sm-3 d-flex align-items-end">
-                  <button type="submit" className="btn btn-orange w-100">Create Plan</button>
+                <div className="col-12 col-sm-3">
+                  <label className="form-label">Status</label>
+                  <select className="form-select" {...register("status")} defaultValue="active"><option value="active">Active</option><option value="inactive">Inactive</option></select>
                 </div>
                 <div className="col-12">
                   <label className="form-label">Description</label>
                   <input type="text" className="form-control" placeholder="Short description" {...register("description")} />
                 </div>
+                <div className="col-12 d-flex flex-wrap gap-2 justify-content-end">
+                  {editingPlan && <button type="button" className="btn btn-outline-secondary" onClick={cancelEdit}>Cancel</button>}
+                  <button type="submit" className="btn btn-orange">{editingPlan ? "Update Plan" : "Create Plan"}</button>
+                </div>
               </div>
             </form>
           </div>
 
-          <div className="dash-card">
-            <h4>Existing Plans</h4>
-            <div className="table-responsive">
-              <table className="dash-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Tokens</th>
-                    <th>Price</th>
-                    <th>Description</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {plans.length > 0 ? (
-                    plans.map((p) => (
-                      <tr key={p._id}>
-                        <td>{p.name}</td>
-                        <td>{p.tokens}</td>
-                        <td>₹{p.price}</td>
-                        <td>{p.description || "-"}</td>
-                        <td>{p.status === "active" ? <span className="active">Active</span> : <span className="inactive">Inactive</span>}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="5" className="no-data">No Plans Yet</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <div className="admin-list-toolbar"><div><span className="admin-list-count">{plans.length}</span><span>Credit packages</span></div><span className="admin-live-dot">Marketplace plans</span></div>
+          <div className="admin-plan-grid">
+            {plans.length > 0 ? plans.map((p) => (
+              <article className="admin-plan-card" key={p._id}>
+                <div className="admin-plan-top"><span className={p.status === "active" ? "active" : "inactive"}>{p.status === "active" ? "Active" : "Inactive"}</span><span className="plan-credit-icon">C</span></div>
+                <h3>{p.name}</h3>
+                <p>{p.description || "Flexible credits for projects and bids."}</p>
+                <div className="admin-plan-token"><strong>{p.tokens}</strong><span>credits</span></div>
+                <div className="admin-plan-price">₹{p.price}<small> / package</small></div>
+                <button type="button" className="admin-view-btn mt-3 w-100" onClick={() => startEdit(p)}>Edit Plan</button>
+              </article>
+            )) : <div className="admin-empty-state"><span>C</span><h4>No plans yet</h4><p>Create a credit package above.</p></div>}
           </div>
         </div>
       </div>
-    </div>
+    </div></main>
   );
 };
 

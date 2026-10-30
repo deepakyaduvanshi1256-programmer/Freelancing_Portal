@@ -1,58 +1,86 @@
-import React from 'react'
-import { FaCircleCheck } from "react-icons/fa6";
-const Footer = () => {
-  return (
-    <>
-      <div className="row footer  ">
-        <div className="col-sm-1"></div>
-        <div className="col-sm-2 p-4  footercall formp">
-          <h4><FaCircleCheck className='text-danger fs-1 px-2'/>
-            Ze<b className='text-danger'>ntora</b></h4>
-          <p className='formhh'>Zentora — Where Talent Meets Opportunity. <br></br>The future of freelancing is here. Connect. Collaborate. Earn.</p>
-          <p className='formhh'>
-           <b> Add: </b>70-80 Upper St Norwich NR2</p>
-           <p className='formhh'><b> Call: </b>+91 9044792856</p>
-           <p className='formhh'><b> Email: </b>deepakyaduvanshi1256@gmail.com</p>
-        </div>
-        <div className="col-sm-1"></div>
-        <div className="col-sm-2   footercall formp">
-          <h4>Zentora Platform</h4>
-          <p className='formh'>Lorem ipsum dolor sit amet.</p>
-          <p className='formh'>Lorem ipsum dolor sit amet.</p>
-          <p className='formh'>Lorem ipsum dolor sit amet.</p>
-          <p className='formh'>Lorem ipsum dolor sit amet.</p>
-          <p className='formh'>Lorem ipsum dolor sit amet.</p>
-          <p className='formh'>Lorem ipsum dolor sit amet.</p>
-        </div>
-         <div className="col-sm-1"></div>
-         
-        <div className="col-sm-2   footercall formp  ">
-          <h4>Links</h4>
-          <p className='formh'>Contacts</p>
-          <p className='formh'>Gallery</p>
-          <p className='formh'>News / Articles</p>
-          <p className='formh'>Login / Register</p>
-          <p className='formh'>COming Soon</p>
-          <p className='formh'>Login / Register</p>
+import { Link } from "react-router-dom";
 
+const Footer = () => (
+  <footer className="container-fluid bg-dark text-white pt-5 pb-3">
+    <div className="container">
+      <div className="row g-4">
+        <div className="col-12 col-md-6 col-lg-3">
+          <h2 className="h4 fw-bold">
+            <i className="bi bi-check2-circle text-primary me-2" />
+            Zentora
+          </h2>
+          <p className="text-white-50">
+            Where Talent Meets Opportunity. Connect, collaborate, and grow with
+            a trusted freelance marketplace.
+          </p>
+          <div className="d-flex gap-3 fs-4">
+            <a href="#" aria-label="Facebook" className="text-white-50">
+              <i className="bi bi-facebook" />
+            </a>
+            <a href="#" aria-label="LinkedIn" className="text-white-50">
+              <i className="bi bi-linkedin" />
+            </a>
+            <a href="#" aria-label="Instagram" className="text-white-50">
+              <i className="bi bi-instagram" />
+            </a>
+          </div>
         </div>
-        
-        <div className="col-sm-2 pt-3  footercal formp">
-          <h4 className='formh'>Contact Us</h4>
-          <p className='formh'>Enter your email address to register to our newsletter Subscription</p>
-          <input type="text" placeholder='your email' className=' form-f bg-shadow-lg w-50'/> <button className='btn btn-info form-ff'>Subscribe</button>
+        <div className="col-12 col-md-6 col-lg-3">
+          <h3 className="h5">Quick Links</h3>
+          {[
+            ["Home", "/"],
+            ["Projects", "/user-projects"],
+            ["Pricing", "/pricing"],
+            ["Login", "/login"],
+            ["Register", "/register"],
+          ].map(([text, to]) => (
+            <Link
+              key={to}
+              to={to}
+              className="d-block text-decoration-none text-white-50 mb-2 footer-link"
+            >
+              {text}
+            </Link>
+          ))}
         </div>
-        
+        <div className="col-12 col-md-6 col-lg-3">
+          <h3 className="h5">Categories</h3>
+          {[
+            "Web Development",
+            "Graphic Design",
+            "Content Writing",
+            "Mobile Apps",
+            "Business Consulting",
+          ].map((item) => (
+            <span key={item} className="d-block text-white-50 mb-2">
+              {item}
+            </span>
+          ))}
+        </div>
+        <div className="col-12 col-md-6 col-lg-3">
+          <h3 className="h5">Contact</h3>
+          <a
+            href="mailto:deepakyaduvanshi12@gmail.com"
+            className="d-block text-decoration-none text-white-50 mb-2"
+          >
+            <i className="bi bi-envelope me-2" />
+            deepakyaduvanshi1256@gmail.com
+          </a>
+          <a
+            href="tel:+919044792856"
+            className="d-block text-decoration-none text-white-50"
+          >
+            <i className="bi bi-telephone me-2" />
+            +91 9044792856
+          </a>
+        </div>
       </div>
-      <div className="row pt-3">
-        <div className="col-sm-3"></div>
-        <div className="col-sm-6 px-5">
-          <p>Copyright 2026 Zentora & <b className='text-danger'> Er. Deepak Yadav</b>— Hire. Work. Grow. All Rights Reserved</p>
-        </div>
-        <div className="col-sm-3"></div>
+      <div className="border-top border-secondary mt-4 pt-3 text-center text-white-50 small">
+        © {new Date().getFullYear()} Zentora. All rights reserved.<br />
+        Created and Designed by <strong>Er. Deepak Yadav</strong> · +91 9044792856 · deepakyaduvanshi1256@gmail.com
       </div>
-    </>
-  )
-}
+    </div>
+  </footer>
+);
 
-export default Footer
+export default Footer;

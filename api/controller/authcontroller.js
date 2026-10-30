@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { userModel } from '../models/model.js'
 import { JWT_SECRET } from "../middleware/auth.js";
+import { sendProjectEmail, sendBulkProjectEmails } from "../utils/emailService.js";
 
 export const userRegister = async (req, res) => {
     try {
@@ -21,6 +22,17 @@ export const userRegister = async (req, res) => {
         const startingCredit = type === "user" ? 50 : 0;
         const data = new userModel({ type, name, email, password: hashedPassword, credit: startingCredit })
         const result = await data.save()
+        sendProjectEmail({
+            to: result.email,
+            subject: "Welcome to Zentora",
+            text: `Hi ${result.name || ""}, your ${result.type === "client" ? "client" : "talent"} account has been created successfully. Welcome to Zentora!`
+        }).catch(() => {});
+        userModel.find({ type: "admin", isDeleted: { $ne: true } }).select("email").then((admins) => {
+            sendBulkProjectEmails(admins.map((admin) => admin.email), {
+                subject: `New ${result.type === "client" ? "client" : "user"} registered: ${result.name || result.email}`,
+                text: `${result.name || "A new user"} registered on Zentora with email ${result.email}.`
+            });
+        }).catch(() => {});
         const safeResult = result.toObject();
         delete safeResult.password;
         res.json({
@@ -54,6 +66,9 @@ export const userLogin = async (req, res) => {
                 error: true
             })
         }
+        if (user.isDeleted) {
+            return res.json({ code: 403, success: false, message: "This account has been deleted", result: "", error: true })
+        }
         if (user.isBlocked) {
             return res.json({
                 code: 403,
@@ -74,6 +89,11 @@ export const userLogin = async (req, res) => {
             })
         }
         const token = jwt.sign({ id: user._id, type: user.type }, JWT_SECRET, { expiresIn: "7d" });
+        sendProjectEmail({
+            to: user.email,
+            subject: "New login to your Zentora account",
+            text: `Hi ${user.name || ""}, you signed in to Zentora successfully at ${new Date().toLocaleString()}.`
+        }).catch(() => {});
         const safeUser = user.toObject();
         delete safeUser.password;
         res.json({

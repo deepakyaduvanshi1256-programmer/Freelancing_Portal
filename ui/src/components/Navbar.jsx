@@ -50,38 +50,38 @@ const CommonMenu = () =>{
               <div className="collapse navbar-collapse" id="navbarNav">
                 <ul className="navbar-nav">
                   <li className="nav-item">
-                    <Link className="nav-link " aria-current="page" to="/">
+                    <Link className="nav-link"  aria-current="page" to="/">
                       Home
                     </Link>
                   </li>
                   {/* <li className="nav-item">
-                    <Link className="nav-link" to="/about">
+                    <Link className="nav-link"  to="/about">
                       About-us
                     </Link>
                   </li> */}
                   {/* <li className="nav-item">
-                    <Link className="nav-link" to="/services">
+                    <Link className="nav-link"  to="/services">
                       Services
                     </Link>
                   </li> */}
 
                   <li className="nav-item">
-                    <Link className="nav-link" to="/pricing">
+                    <Link className="nav-link"  to="/pricing">
                       Pricing
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/contact">
+                    <Link className="nav-link"  to="/contact">
                       Contact-us
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/login">
+                    <Link className="nav-link"  to="/login">
                       Login
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/register">
+                    <Link className="nav-link"  to="/register">
                       Register
                     </Link>
                   </li>
@@ -103,7 +103,7 @@ const AdminMenu = () =>{
   navigate('/')
 }
   return(<>
-   <div className="row">
+   <div className="row zentora-dashboard-navbar ">
         <div className="col-sm-2"></div>
         <div className="col-sm-8 menu">
           <nav className="navbar navbar-expand-lg ">
@@ -126,38 +126,38 @@ const AdminMenu = () =>{
                 <ul className="navbar-nav">
                   <li className="nav-item">
 
-                    <Link className="nav-link " aria-current="page" to="/admin-dashboard">
+                    <Link className="nav-link"  aria-current="page" to="/admin-dashboard">
                       Dashboard
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/admin-project">
+                    <Link className="nav-link"  to="/admin-project">
                      Project
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/admin-users">
+                    <Link className="nav-link"  to="/admin-users">
                       Users
                     </Link>
                   </li>
 
                   <li className="nav-item">
-                    <Link className="nav-link" to="/admin-plans">
+                    <Link className="nav-link"  to="/admin-plans">
                       Plans
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/admin-clients">
+                    <Link className="nav-link"  to="/admin-clients">
                      Clients
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/admin-bids">
+                    <Link className="nav-link"  to="/admin-bids">
                    Bids
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/admin-profile">
+                    <Link className="nav-link"  to="/admin-profile">
                      Profile
                     </Link>
                   </li>
@@ -188,7 +188,7 @@ const ClientMenu = () =>{
   navigate('/')
 }
   return(<>
-   <div className="row">
+   <div className="row zentora-dashboard-navbar ">
         <div className="col-sm-2"></div>
         <div className="col-sm-8 menu">
           <nav className="navbar navbar-expand-lg ">
@@ -211,28 +211,28 @@ const ClientMenu = () =>{
                 <ul className="navbar-nav">
                   <li className="nav-item">
 
-                    <Link className="nav-link " aria-current="page" to="/client-dashboard">
+                    <Link className="nav-link"  aria-current="page" to="/client-dashboard">
                       Dashboard
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/client-post-project">
+                    <Link className="nav-link"  to="/client-post-project">
                       Post-Project
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/client-manage-project">
+                    <Link className="nav-link"  to="/client-manage-project">
                       Manage-Project
                     </Link>
                   </li>
 
                   <li className="nav-item">
-                    <Link className="nav-link" to="/client-review-bids">
+                    <Link className="nav-link"  to="/client-review-bids">
                       Bids
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/client-profile">
+                    <Link className="nav-link"  to="/client-profile">
                       Profile
                     </Link>
                   </li>
@@ -265,7 +265,7 @@ const UserMenu = () =>{
   navigate('/')
 }
   return(<>
-   <div className="row">
+   <div className="row zentora-dashboard-navbar ">
         <div className="col-sm-2"></div>
         <div className="col-sm-8 menu">
           <nav className="navbar navbar-expand-lg ">
@@ -288,7 +288,7 @@ const UserMenu = () =>{
                 <ul className="navbar-nav">
                   <li className="nav-item">
 
-                    <Link className="nav-link " aria-current="page" to="/user-dashboard">
+                    <Link className="nav-link"  aria-current="page" to="/user-dashboard">
                       Dashboard
                     </Link>
                   </li>
@@ -302,7 +302,6 @@ const UserMenu = () =>{
                       Bids
                     </Link>
                   </li>
-
                   <li className="nav-item">
                     <Link className="nav-link" to="/user-profile">
                       Profile

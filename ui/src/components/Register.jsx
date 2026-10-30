@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -36,6 +36,7 @@ const schema = yup.object({
 
 const Register = () => {
   const navigate = useNavigate();
+  const [serverMessage, setServerMessage] = useState({ type: "", text: "" });
 
   const {
     register,
@@ -55,6 +56,7 @@ const Register = () => {
   });
 
   const handleRegister = async (data) => {
+    setServerMessage({ type: "", text: "" });
     try {
       const { cpassword, ...payload } = data;
 
@@ -62,23 +64,22 @@ const Register = () => {
 
       if (res?.data?.success) {
         reset();
-        navigate("/login");
+        navigate("/login", { state: { message: "Registration successful! Please sign in with your new account." } });
       } else {
-        console.error(
-          res?.data?.message || "Registration failed!"
-        );
+        setServerMessage({ type: "danger", text: res?.data?.message || "Registration failed. Please try again." });
       }
     } catch (error) {
-      console.error(
-        error.response?.data?.message ||
-          "Registration failed. Please try again."
-      );
+      if (error.code === "ERR_NETWORK") {
+        setServerMessage({ type: "danger", text: "Server is not reachable. Start the API server and try again." });
+      } else {
+        setServerMessage({ type: "danger", text: error.response?.data?.message || "Registration failed. Please try again." });
+      }
     }
   };
 
   return (
-    <div className="register-page d-flex justify-content-center align-items-center">
-      <div className="register-card shadow">
+    <main className="register-page neu-auth-page container-fluid py-5 min-vh-100 d-flex justify-content-center align-items-center">
+      <div className="register-card neu-auth-card card border-0 p-4 p-md-5 mx-auto" style={{ maxWidth: '760px' }}>
         <p className="text-uppercase small-title mb-2">
           Get Started
         </p>
@@ -91,6 +92,12 @@ const Register = () => {
             Sign in here
           </Link>
         </p>
+
+        {serverMessage.text && (
+          <div className={`alert alert-${serverMessage.type}`} role="alert">
+            {serverMessage.text}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(handleRegister)}>
           <div className="row">
@@ -221,7 +228,7 @@ const Register = () => {
           </p>
         </form>
       </div>
-    </div>
+    </main>
   );
 };
 

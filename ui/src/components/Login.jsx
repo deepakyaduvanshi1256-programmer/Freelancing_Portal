@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { saveAuth } from "../utils/auth";
 
@@ -26,6 +26,10 @@ const schema = yup.object({
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [serverMessage, setServerMessage] = useState({ type: "", text: "" });
+
+  const registrationMessage = location.state?.message;
 
   const {
     register,
@@ -43,6 +47,7 @@ const Login = () => {
   });
 
   const handleLogin = async (data) => {
+    setServerMessage({ type: "", text: "" });
     try {
       const res = await axiosInstance.post("/login", data);
 
@@ -50,7 +55,7 @@ const Login = () => {
         const { user, token } = res?.data?.result || {};
 
         if (!user || !token) {
-          console.error("Invalid login response from server.");
+          setServerMessage({ type: "danger", text: "Login server returned an incomplete response. Please try again." });
           return;
         }
 
@@ -60,29 +65,33 @@ const Login = () => {
         reset();
 
         // Redirect according to user role
-        if (user.type === "admin") {
+        const redirectTo = location.state?.redirectTo;
+        if (redirectTo) {
+          navigate(redirectTo);
+        } else if (user.type === "admin") {
           navigate("/admin-dashboard");
         } else if (user.type === "user") {
           navigate("/user-dashboard");
         } else if (user.type === "client") {
           navigate("/client-dashboard");
         } else {
-          console.error("User role is invalid.");
+          setServerMessage({ type: "danger", text: "Your account role is invalid. Please contact support." });
         }
       } else {
-        console.error(res?.data?.message || "Login failed!");
+        setServerMessage({ type: "danger", text: res?.data?.message || "Login failed. Please check your details." });
       }
     } catch (error) {
-      console.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again."
-      );
+      if (error.code === "ERR_NETWORK") {
+        setServerMessage({ type: "danger", text: "Server is not reachable. Start the API server and try again." });
+      } else {
+        setServerMessage({ type: "danger", text: error.response?.data?.message || "Login failed. Please try again." });
+      }
     }
   };
 
   return (
-    <div className="login-page d-flex justify-content-center align-items-center">
-      <div className="login-card shadow">
+    <main className="login-page neu-auth-page container-fluid py-5 min-vh-100 d-flex justify-content-center align-items-center">
+      <div className="login-card neu-auth-card card border-0 p-4 p-md-5 mx-auto" style={{ maxWidth: '480px' }}>
         <p className="welcome-text mb-2">WELCOME BACK</p>
 
         <h1 className="fw-bold mb-2">Sign In</h1>
@@ -93,6 +102,12 @@ const Login = () => {
             Create one free
           </Link>
         </p>
+
+        {(registrationMessage || serverMessage.text) && (
+          <div className={`alert alert-${serverMessage.text ? serverMessage.type : "success"}`} role="alert">
+            {serverMessage.text || registrationMessage}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(handleLogin)}>
           {/* Account Type */}
@@ -194,7 +209,7 @@ const Login = () => {
           </button>
         </form>
       </div>
-    </div>
+    </main>
   );
 };
 

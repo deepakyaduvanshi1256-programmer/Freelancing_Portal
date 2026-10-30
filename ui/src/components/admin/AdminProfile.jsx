@@ -68,7 +68,7 @@ const AdminProfile = () => {
   };
 
   return (
-    <div className="container py-5">
+    <main className="admin-shell container-fluid px-3 px-md-4 py-4 py-md-5"><div className="container">
       <div className="row">
         <div className="col-12">
           <span className="dash-eyebrow">Zentora Admin</span>
@@ -131,7 +131,7 @@ const AdminProfile = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div></main>
   )
 }
 

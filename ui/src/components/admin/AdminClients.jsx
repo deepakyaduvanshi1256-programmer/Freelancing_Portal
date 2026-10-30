@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { FaBan, FaCheck } from "react-icons/fa";
+import { FaBan, FaCheck, FaBuilding, FaTrashAlt, FaUndo } from "react-icons/fa";
 import Swal from "sweetalert2";
 import axiosInstance from "../../utils/axiosInstance";
 
 const AdminClients = () => {
 
   const [data, setData] = useState([]);
+  const [view, setView] = useState("active");
 
   useEffect(() => {
     fetchData();
@@ -38,8 +39,27 @@ const AdminClients = () => {
     }
   };
 
+  const deleteClient = async (client, permanent = false, restore = false) => {
+    const result = await Swal.fire({
+      title: restore ? "Restore this client?" : permanent ? "Permanently delete this client?" : "Move client to trash?",
+      text: restore ? "The client account will become active again." : permanent ? "This permanently deletes the client and cannot be undone." : "You can restore this client later.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: restore ? "Restore" : permanent ? "Delete permanently" : "Move to trash",
+      confirmButtonColor: permanent ? "#dc3545" : undefined,
+    });
+    if (!result.isConfirmed) return;
+    try {
+      const res = await axiosInstance.post("/admin-delete-user", { userId: client._id, permanent, restore });
+      if (res?.data?.success) { Swal.fire({ title: "Client", text: res.data.message, icon: "success" }); fetchData(); }
+      else Swal.fire({ title: "Client", text: res?.data?.message, icon: "error" });
+    } catch (error) { Swal.fire({ title: "Error", text: error.response?.data?.message || "Something went wrong", icon: "error" }); }
+  };
+
+  const visibleData = data.filter(client => view === "deleted" ? client.isDeleted : !client.isDeleted);
+
   return (
-    <div className="admin-container container-fluid py-4">
+    <main className="admin-shell container-fluid px-3 px-md-4 py-4 py-md-5"><div className="container">
 
       <div className="heading-section">
         <span className="dash-eyebrow">
@@ -51,68 +71,31 @@ const AdminClients = () => {
         </h2>
       </div>
 
-      <div className="dash-card">
-
-        <div className="table-responsive">
-
-          <table className="dash-table">
-
-            <thead>
-              <tr>
-                <th>Name / Company</th>
-                <th>Email</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                data.length > 0 ?
-                  data.map((item) => (
-                    <tr key={item._id}>
-                      <td>{item?.name}</td>
-                      <td>{item?.email}</td>
-                      <td>{item?.location || "-"}</td>
-                      <td>  {
-                        !item?.isBlocked ? <span className="active">Active</span> : <span className="inactive">Blocked</span>
-                      }
-
-                      </td> <td>
-                        {!item?.isBlocked ? (
-                          <button className="block-btn" onClick={() => toggleBlock(item)}>
-                            <FaBan />
-                            Block
-                          </button>
-                        ) : (
-                          <button className="unblock-btn" onClick={() => toggleBlock(item)}>
-                            <FaCheck />
-                            Unblock
-                          </button>
-                        )}
-
-                      </td>
-                    </tr>
-                  )) :
-                  <tr>
-                    <td colSpan="5" className="no-data">
-                      No Clients Found
-                    </td>
-                  </tr>
-
-              }
-
-
-            </tbody>
-
-          </table>
-
-        </div>
-
+      <div className="d-flex gap-2 mb-3">
+        <button className={`client-small-btn ${view === "active" ? "active" : ""}`} type="button" onClick={() => setView("active")}>Active Clients</button>
+        <button className={`client-small-btn ${view === "deleted" ? "active" : ""}`} type="button" onClick={() => setView("deleted")}>Trash ({data.filter(client => client.isDeleted).length})</button>
+      </div>
+      <div className="admin-list-toolbar"><div><span className="admin-list-count">{visibleData.length}</span><span>{view === "deleted" ? "Deleted clients" : "Registered clients"}</span></div><span className="admin-live-dot">Live directory</span></div>
+      <div className="admin-record-grid admin-user-grid">
+        {visibleData.length > 0 ? visibleData.map((item) => (
+          <article className="admin-record-card admin-user-card" key={item._id}>
+            <div className="admin-record-top"><div className="admin-record-icon"><FaBuilding /></div>{!item?.isBlocked ? <span className="active">Active</span> : <span className="inactive">Blocked</span>}</div>
+            <div className="admin-record-body"><span className="admin-card-kicker">Client</span><h3>{item?.name || "Unnamed client"}</h3><p>{item?.email}</p></div>
+            <div className="admin-location"><small>Location</small><strong>{item?.location || "Not provided"}</strong></div>
+            {item.isDeleted ? (
+              <div className="d-flex gap-2"><button className="unblock-btn flex-grow-1 justify-content-center" onClick={() => deleteClient(item, false, true)}><FaUndo /> Restore</button><button className="block-btn flex-grow-1 justify-content-center" onClick={() => deleteClient(item, true, false)}><FaTrashAlt /> Delete permanently</button></div>
+            ) : (
+              <>
+                {!item?.isBlocked ? <button className="block-btn w-100 justify-content-center" onClick={() => toggleBlock(item)}><FaBan /> Block account</button> : <button className="unblock-btn w-100 justify-content-center" onClick={() => toggleBlock(item)}><FaCheck /> Unblock account</button>}
+                <button className="block-btn w-100 justify-content-center mt-2" onClick={() => deleteClient(item)}><FaTrashAlt /> Move to trash</button>
+              </>
+            )}
+          </article>
+        )) : <div className="admin-empty-state"><FaBuilding /><h4>No clients found</h4></div>}
       </div>
 
 
-    </div>
+    </div></main>
   )
 }
 
